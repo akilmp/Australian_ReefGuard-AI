@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evidently-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evidently
+  template:
+    metadata:
+      labels:
+        app: evidently
+    spec:
+      containers:
+      - name: evidently
+        image: {{ .Values.Evidently.image }}
+        ports:
+        - containerPort: {{ .Values.Evidently.servicePort }}
+        resources: {{ toYaml .Values.Evidently.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evidently-service
+spec:
+  selector:
+    app: evidently
+  ports:
+  - port: {{ .Values.Evidently.servicePort }}
+    targetPort: {{ .Values.Evidently.servicePort }}
