@@ -1,0 +1,9 @@
+blockstore:
+  type: s3
+  s3:
+    region: us-east-1
+    bucket: YOUR_LAKEFS_BUCKET
+    endpoint: s3.amazonaws.com
+    credentials:
+      accessKeyID: ${AWS_ACCESS_KEY_ID}
+      secretAccessKey: ${AWS_SECRET_ACCESS_KEY}

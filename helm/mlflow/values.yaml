@@ -1,0 +1,12 @@
+---
+tracking:
+  defaultArtifactRoot: s3://reefguard-mlflow
+backendStore:
+  database:
+    type: sqlite
+    path: /mlflow/mlflow.db
+service:
+  type: ClusterIP
+  port: 5000
+ingress:
+  enabled: false

@@ -3,29 +3,50 @@
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
-2. [End‑to‑End Workflow Diagram](#end-to-end-workflow-diagram)
-3. [Core Competencies & How They’re Demonstrated](#core-competencies--how-theyre-demonstrated)
-4. [Tech Stack](#tech-stack)
-5. [Data Sources](#data-sources)
-6. [Repository Structure](#repository-structure)
-7. [Local Development Quick‑Start](#local-development-quick-start)
-8. [Infrastructure‑as‑Code](#infrastructure-as-code)
-9. [Data & Feature Management](#data--feature-management)
-10. [Automated Training & Tuning](#automated-training--tuning)
-11. [Model Registry & Promotion Workflow](#model-registry--promotion-workflow)
-12. [CI/CD Pipelines](#cicd-pipelines)
-13. [Model Serving & Deployment Strategies](#model-serving--deployment-strategies)
-14. [Monitoring & Observability](#monitoring--observability)
-15. [Cost Optimisation](#cost-optimisation)
-16. [Troubleshooting & FAQ](#troubleshooting--faq)
-17. [Stretch Goals](#stretch-goals)
-18. [References](#references)
+2. [Prerequisites](#prerequisites)
+3. [End‑to‑End Workflow Diagram](#end-to-end-workflow-diagram)
+4. [Core Competencies & How They’re Demonstrated](#core-competencies--how-theyre-demonstrated)
+5. [Tech Stack](#tech-stack)
+6. [Data Sources](#data-sources)
+7. [Repository Structure](#repository-structure)
+8. [Local Development Quick‑Start](#local-development-quick-start)
+9. [Example Commands](#example-commands)
+10. [Infrastructure‑as‑Code](#infrastructure-as-code)
+11. [Data & Feature Management](#data--feature-management)
+12. [Automated Training & Tuning](#automated-training--tuning)
+13. [Model Registry & Promotion Workflow](#model-registry--promotion-workflow)
+14. [CI/CD Pipelines](#cicd-pipelines)
+15. [Model Serving & Deployment Strategies](#model-serving--deployment-strategies)
+16. [Monitoring & Observability](#monitoring--observability)
+17. [Cost Optimisation](#cost-optimisation)
+18. [Troubleshooting & FAQ](#troubleshooting--faq)
+19. [Stretch Goals](#stretch-goals)
+20. [References](#references)
 
 ---
 
 ## Project Overview
 
 **ReefGuard AI** is a fully‑automated MLOps platform that predicts coral‑bleaching risk for the Great Barrier Reef by ingesting live MODIS/Sentinel‑2 sea‑surface‑temperature imagery and Queensland buoy sensor streams, materialising features in Feast, training an XGBoost + Vision Transformer ensemble via Kubeflow Pipelines and Katib tuning, registering models in MLflow with GitHub‑gated promotion, and rolling canary deployments to KFServing (or AWS SageMaker Serverless GPU) with Istio traffic splitting.  Evidently AI monitors data & prediction drift, triggering auto‑re‑training jobs and Slack alerts.  All infra is codified with Terraform and Helm; CI/CD runs through GitHub Actions.  Idle cost ≈ AUD 20/month.
+
+**Key capabilities**
+
+- Near‑real‑time ingestion of satellite and buoy observations.
+- Feature materialisation and online serving via Feast.
+- Automated training and hyper‑parameter tuning with Kubeflow Pipelines and Katib.
+- Experiment tracking and model registry powered by MLflow.
+- Canary or serverless GPU deployment through KFServing or SageMaker.
+- Continuous drift monitoring with Evidently AI and automated retraining triggers.
+
+## Prerequisites
+
+The project assumes the following tools are installed locally:
+
+- [Python 3.10+](https://www.python.org/)
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) and [Helm](https://helm.sh/) for interacting with Kubernetes clusters
+- [Terraform](https://www.terraform.io/) for infrastructure provisioning
+- Optional: [conda](https://docs.conda.io/) for environment management
 
 ---
 
@@ -155,12 +176,28 @@ python pipelines/kfp_v2/etl_pipeline.py --local-sample
 python models/trainer/train.py --sample-data
 ```
 
+## Example Commands
+
+```bash
+# Run tests
+pytest -q
+
+# Build training image
+docker build -t reefguard/trainer models/trainer
+
+# Trigger a sample training run
+python models/trainer/train.py --sample-data
+
+# Serve the latest model locally
+python models/inference/app.py --model-path models/artifacts/latest
+```
+
 ---
 
 ## Infrastructure‑as‑Code
 
 * **Terraform root modules**: `core` (network, EKS, S3, IAM) and `mlops` (ECR, SageMaker, Prometheus, ALB Ingress).
-* **Helmfile** manages Kubernetes releases: MLflow, Feast, Evidently, KFServing CRDs.
+* **Helmfile** manages Kubernetes releases: MLflow, Feast, Evidently, KFServing CRDs. Helm values for MLflow live under `helm/mlflow/values.yaml`.
 * **lakeFS installation** via Helm with S3 backend.
 
 Example deploy:
@@ -197,10 +234,11 @@ helmfile -f ../helmfile/01_core.yaml apply
 ## Model Registry & Promotion Workflow
 
 1. PR merges feature or model code.
-2. GitHub Action `model-ci.yml` runs unit + integration tests, `evidently evaluate` comparing new model vs prod on hold‑out slice.
-3. If metrics pass, Action pushes Docker image and updates Helm chart `values.yaml` image tag.
-4. ArgoCD/Kustomize sync deploys **canary** InferenceService (10 % traffic).
-5. Istio telemetry & Prometheus **error‑budget** monitor; after 30 min with <1 % degradation, tag transitions to *“Production”* (100 % traffic).
+2. GitHub Action `model-ci.yml` runs unit + integration tests, `evidently evaluate` comparing new model vs prod on hold‑out slice, and executes the training script `models/trainer/train.py` which registers the model with MLflow.
+3. Workflow `model-approval.yml` verifies that any model moved to *Staging* or *Production* is listed in `models/approved_models.txt`.
+4. If metrics pass, Action pushes Docker image and updates Helm chart `values.yaml` image tag.
+5. ArgoCD/Kustomize sync deploys **canary** InferenceService (10 % traffic).
+6. Istio telemetry & Prometheus **error‑budget** monitor; after 30 min with <1 % degradation, tag transitions to *“Production”* (100 % traffic).
 
 ---
 

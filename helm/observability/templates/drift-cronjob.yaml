@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: drift-evaluation
+spec:
+  schedule: {{ .Values.DriftJob.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: drift
+            image: {{ .Values.DriftJob.image }}
+            env:
+            - name: PSI_THRESHOLD
+              value: {{ .Values.DriftJob.psiThreshold | quote }}
+            - name: RETRAIN_ENDPOINT
+              value: {{ .Values.DriftJob.retrainEndpoint | quote }}
