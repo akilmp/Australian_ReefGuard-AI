@@ -1,3 +1,8 @@
 evidently
 pandas
 requests
+mlflow
+scikit-learn
+xgboost
+torch
+kserve
