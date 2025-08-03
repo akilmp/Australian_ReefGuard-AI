@@ -50,8 +50,16 @@ def katib_experiment(experiment_spec: str):
     name="reefguard-training-pipeline",
     description="Training pipeline with Katib Bayesian HPO",
 )
-def training_pipeline():
-    """Construct the pipeline that submits a Katib Bayesian optimization experiment."""
+def training_pipeline(
+    image: str = "gcr.io/reefguard/trainer:latest",
+):
+    """Construct the pipeline that submits a Katib Bayesian optimization experiment.
+
+    Parameters
+    ----------
+    image: str, optional
+        Container image to use for the Katib trial jobs.
+    """
     experiment_spec: Dict = {
         "apiVersion": "kubeflow.org/v1beta1",
         "kind": "Experiment",
@@ -138,7 +146,7 @@ def training_pipeline():
                                 "containers": [
                                     {
                                         "name": "training-container",
-                                        "image": "gcr.io/reefguard/trainer:latest",
+                                        "image": image,
                                         "command": [
                                             "python",
                                             "models/trainer/train.py",
