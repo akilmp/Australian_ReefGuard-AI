@@ -138,7 +138,7 @@ def training_pipeline():
                                 "containers": [
                                     {
                                         "name": "training-container",
-                                        "image": "ttl.sh/reefguard-trainer-1754218355:24h",
+                                        "image": "gcr.io/reefguard/trainer:latest",
                                         "command": [
                                             "python",
                                             "models/trainer/train.py",

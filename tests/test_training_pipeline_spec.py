@@ -29,3 +29,4 @@ def test_katib_experiment_spec(monkeypatch):
     }
     objective_metric_name = spec["spec"]["objective"]["objectiveMetricName"]
     assert objective_metric_name == "ensemble_accuracy"
+
