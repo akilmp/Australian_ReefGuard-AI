@@ -32,4 +32,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build Docker image
-        run: docker build -t reefguard-ai .
+        run: docker build -t reefguard-ai models/inference
