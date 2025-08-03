@@ -5,8 +5,8 @@ datasets:
     path: data/current.csv
 tests:
   - DataDriftTest:
-      column_name: feature_a
+      column_name: sst_celsius
       threshold: 0.1
   - DataDriftTest:
-      column_name: feature_b
+      column_name: turbidity_ntu
       threshold: 0.1

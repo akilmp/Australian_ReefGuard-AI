@@ -33,7 +33,7 @@ def test_katib_experiment_spec(monkeypatch):
         fake_katib_experiment,
     )
 
-    training_pipeline.training_pipeline()
+    training_pipeline.training_pipeline(image="test-image:latest")
 
     spec = json.loads(captured["spec"])
     param_names = {p["name"] for p in spec["spec"]["parameters"]}
@@ -47,3 +47,6 @@ def test_katib_experiment_spec(monkeypatch):
     }
     objective_metric_name = spec["spec"]["objective"]["objectiveMetricName"]
     assert objective_metric_name == "ensemble_accuracy"
+
+    container_image = spec["spec"]["trialTemplate"]["trialSpec"]["spec"]["template"]["spec"]["containers"][0]["image"]
+    assert container_image == "test-image:latest"

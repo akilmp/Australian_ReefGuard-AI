@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 import pandas as pd
+import pytest
 
 from models.inference.predictor import Predictor
 
@@ -32,6 +33,7 @@ def test_predict_fetches_features_and_runs_model(monkeypatch):
     pred = Predictor("model")
     pred.model = MagicMock()
     pred.model.predict.return_value = pd.Series([0.1, 0.2])
+    pred.ready = True
 
     feature_store = MagicMock()
     feature_store.get_online_features.return_value.to_df.return_value = pd.DataFrame(
@@ -54,3 +56,18 @@ def test_predict_fetches_features_and_runs_model(monkeypatch):
         "sst_turbidity_view:turbidity_ntu",
     ]
     assert result == {"predictions": [0.1, 0.2]}
+
+
+def test_predict_before_load_raises_error():
+    """Calling ``predict`` before ``load`` should error."""
+    pred = Predictor("model")
+    with pytest.raises(AttributeError):
+        pred.predict({"instances": [{"reef_id": 1}]})
+
+
+def test_predict_with_invalid_request_format_raises_error():
+    """Non-dict requests should raise an ``AttributeError``."""
+    pred = Predictor("model")
+    pred.model = MagicMock()
+    with pytest.raises(AttributeError):
+        pred.predict("not a dict")

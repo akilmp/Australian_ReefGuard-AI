@@ -9,6 +9,7 @@ incoming ``reef_id`` values before inference.
 from __future__ import annotations
 
 import os
+import logging
 from typing import Dict, List
 
 import kserve
@@ -76,7 +77,23 @@ class Predictor(kserve.KFModel):
             outputs.
         """
 
-        instances = request.get("instances", [])
+        if not self.ready:
+            logging.error("Predict called before model was ready")
+            raise RuntimeError("Predictor is not ready. Call 'load' before 'predict'.")
+        if not self.model:
+            logging.error("Predict called without a loaded model")
+            raise RuntimeError("Model is not loaded")
+
+        instances = request.get("instances")
+        if (
+            not isinstance(instances, list)
+            or not instances
+            or not all(isinstance(inst, dict) for inst in instances)
+        ):
+            logging.error("Invalid 'instances' payload: %s", instances)
+            raise ValueError(
+                "request['instances'] must be a non-empty list of dictionaries"
+            )
 
         if self.feature_store and instances and isinstance(instances[0], dict):
             # Retrieve features for each reef_id if explicit feature values are

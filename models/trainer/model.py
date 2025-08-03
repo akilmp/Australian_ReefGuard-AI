@@ -13,9 +13,9 @@ from typing import Any
 
 import numpy as np
 import torch
-from torch import nn
 import torchvision.models as tv_models
 import xgboost as xgb
+from torch import nn
 
 
 @dataclass
@@ -53,11 +53,14 @@ class EnsembleModel:
         self.vit.eval()
         with torch.no_grad():
             if isinstance(images, np.ndarray):
-                # ``torch.from_numpy`` cannot be used in some environments where
-                # PyTorch was built against an older NumPy version.  Converting
-                # via ``tolist`` avoids reliance on NumPy's C-API which keeps
-                # the function lightweight for small test tensors.
-                tensor = torch.tensor(images.tolist(), dtype=torch.float32)
+                try:
+                    tensor = torch.from_numpy(images).float()
+                except RuntimeError:
+                    # ``torch.from_numpy`` may fail if PyTorch was compiled
+                    # against an incompatible NumPy version. Fall back to
+                    # ``tolist`` which avoids this dependency at the cost of
+                    # extra copying.
+                    tensor = torch.tensor(images.tolist(), dtype=torch.float32)
             else:  # assume ``torch.Tensor``
                 tensor = images.float()
             if tensor.ndim == 3:
@@ -68,7 +71,12 @@ class EnsembleModel:
         # the dependency minimal and works in constrained environments.
         return np.array(features.detach().cpu().tolist())
 
-    def fit(self, images: np.ndarray, labels: np.ndarray, **kwargs: Any) -> None:
+    def fit(
+        self,
+        images: np.ndarray,
+        labels: np.ndarray,
+        **kwargs: Any,
+    ) -> None:
         """Train the ensemble on the provided images and labels.
 
         Parameters
