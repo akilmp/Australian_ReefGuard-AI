@@ -7,7 +7,7 @@ This walkthrough demonstrates an end-to-end run of the ReefGuard AI pipeline on 
    git clone https://github.com/example/Australian_ReefGuard-AI.git
    cd Australian_ReefGuard-AI
    conda create -n reefguard python=3.11 -y && conda activate reefguard
-   pip install -r requirements-dev.txt
+   pip install -r requirements.txt -r requirements-dev.txt
    ```
 2. **Launch local services** – start MLflow for experiment tracking and apply Feast feature definitions.
    ```bash

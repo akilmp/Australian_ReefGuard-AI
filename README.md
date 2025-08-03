@@ -165,7 +165,7 @@ reefguard-ai/
 ```bash
 # Clone & prep
 conda create -n reefguard python=3.11 -y && conda activate reefguard
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 
 # Start MLflow & Feast locally
 mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns &

@@ -1,6 +1,8 @@
 evidently
 pandas
 requests
-torch
-torchvision
+mlflow
+scikit-learn
 xgboost
+torch
+kserve
