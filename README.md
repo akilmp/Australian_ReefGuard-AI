@@ -162,10 +162,15 @@ reefguard-ai/
 
 ## Local Development Quick‑Start
 
+Install [pre-commit](https://pre-commit.com/) hooks to automatically format and
+lint code (Black, isort, Flake8) before each commit.
+
 ```bash
 # Clone & prep
 conda create -n reefguard python=3.11 -y && conda activate reefguard
 pip install -r requirements.txt -r requirements-dev.txt
+pre-commit install
+pre-commit run --all-files
 
 # Start MLflow & Feast locally
 mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns &
