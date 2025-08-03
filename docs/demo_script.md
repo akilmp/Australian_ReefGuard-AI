@@ -6,8 +6,8 @@ This walkthrough demonstrates an end-to-end run of the ReefGuard AI pipeline on 
    ```bash
    git clone https://github.com/example/Australian_ReefGuard-AI.git
    cd Australian_ReefGuard-AI
-   conda create -n reefguard python=3.11 -y && conda activate reefguard
-   pip install -r requirements-dev.txt
+   python -m venv .venv && source .venv/bin/activate
+   pip install -r requirements.txt
    ```
 2. **Launch local services** – start MLflow for experiment tracking and apply Feast feature definitions.
    ```bash
@@ -24,7 +24,7 @@ This walkthrough demonstrates an end-to-end run of the ReefGuard AI pipeline on 
    ```
 5. **Serve the model** – launch a simple inference service.
    ```bash
-   python models/inference/app.py --model-path models/artifacts/latest
+   python models/inference/app.py --model-path models/artifacts/latest &
    ```
 6. **Query the endpoint** – send a test request and review the prediction.
    ```bash
@@ -32,6 +32,7 @@ This walkthrough demonstrates an end-to-end run of the ReefGuard AI pipeline on 
         -d '{"features": {"sst": 28.4, "turbidity": 3.1}}' \
         http://localhost:8000/predict
    ```
-7. **Clean up** – stop background services and remove temporary files.
+7. **Monitor** – import `docs/grafana_dash.json` into Grafana to view PSI drift, latency and heat-map panels.
+8. **Clean up** – stop background services and remove temporary files.
 
 These steps can be adapted for live infrastructure by swapping the local commands for their Kubernetes or Terraform equivalents.
