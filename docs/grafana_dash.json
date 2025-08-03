@@ -1,0 +1,13 @@
+{
+  "title": "ReefGuard Observability",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "PSI Drift",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "psi_drift_metric" }
+      ]
+    }
+  ]
+}

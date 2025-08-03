@@ -1,0 +1,31 @@
+prometheus:
+  alertmanager:
+    enabled: false
+  pushgateway:
+    enabled: false
+  server:
+    persistentVolume:
+      enabled: false
+
+grafana:
+  service:
+    type: ClusterIP
+  dashboardsConfigMaps:
+    reefguard-dash: grafana-dash-config
+  adminPassword: admin
+
+# Evidently service configuration
+Evidently:
+  image: evidentlyai/evidently-service:latest
+  servicePort: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Drift evaluation job
+DriftJob:
+  schedule: "*/30 * * * *"
+  image: ghcr.io/reefguard/drift-job:latest
+  psiThreshold: 0.2
+  retrainEndpoint: http://retrainer/retrain
