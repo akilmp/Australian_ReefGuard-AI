@@ -32,6 +32,7 @@ def test_predict_fetches_features_and_runs_model(monkeypatch):
     pred = Predictor("model")
     pred.model = MagicMock()
     pred.model.predict.return_value = pd.Series([0.1, 0.2])
+    pred.ready = True
 
     feature_store = MagicMock()
     feature_store.get_online_features.return_value.to_df.return_value = pd.DataFrame(
