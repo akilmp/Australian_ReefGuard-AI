@@ -75,14 +75,45 @@ def pull_qld_buoy(
     bucket: str,
     prefix: str,
     station_id: str,
+    api_key: str | None = None,
+    base_url: str = "https://weather.aims.gov.au/api/v1/stations",
 ) -> str:
-    """Fetch Queensland buoy JSON telemetry and upload to lakeFS."""
+    """Fetch Queensland buoy JSON telemetry and upload to lakeFS.
+
+    Parameters
+    ----------
+    lakefs_endpoint: str
+        lakeFS endpoint URL for S3-compatible uploads.
+    bucket: str
+        Target lakeFS bucket.
+    prefix: str
+        Key prefix inside the bucket.
+    station_id: str
+        Identifier for the Queensland IMOS/AIMS buoy station.
+    api_key: str | None, optional
+        Optional API key for the AIMS Weather API.  If provided the
+        ``x-api-key`` header will be sent with the request.
+    base_url: str, optional
+        Base URL for the AIMS Weather API station endpoint.
+    """
+
     import os
     import requests
     import boto3
 
-    url = f"https://qld-buoy-data/{station_id}.json"
-    data = requests.get(url, timeout=60).content
+    headers = {"x-api-key": api_key} if api_key else {}
+    params = {"format": "json"}
+    url = f"{base_url}/{station_id}"
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=60)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"Failed to fetch buoy data from {url}"
+        ) from exc
+
+    data = response.content
 
     s3 = boto3.client("s3", endpoint_url=lakefs_endpoint)
     key = os.path.join(prefix, f"buoy_{station_id}.json")
@@ -100,6 +131,7 @@ def etl_pipeline(
     end_date: str = "2023-01-02",
     modis_date: str = "2023-001",
     buoy_station: str = "station-001",
+    buoy_api_key: str = "",
 ):
     pull_sentinel2(
         lakefs_endpoint=lakefs_endpoint,
@@ -120,6 +152,7 @@ def etl_pipeline(
         bucket=bucket,
         prefix=prefix,
         station_id=buoy_station,
+        api_key=buoy_api_key or None,
     )
 
 

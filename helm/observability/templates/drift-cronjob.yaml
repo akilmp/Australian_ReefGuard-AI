@@ -15,5 +15,5 @@ spec:
             env:
             - name: PSI_THRESHOLD
               value: {{ .Values.DriftJob.psiThreshold | quote }}
-            - name: RETRAIN_ENDPOINT
-              value: {{ .Values.DriftJob.retrainEndpoint | quote }}
+            - name: KFP_HOST
+              value: {{ .Values.DriftJob.kfpHost | quote }}

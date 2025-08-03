@@ -28,4 +28,4 @@ DriftJob:
   schedule: "*/30 * * * *"
   image: ghcr.io/reefguard/drift-job:latest
   psiThreshold: 0.2
-  retrainEndpoint: http://retrainer/retrain
+  kfpHost: http://ml-pipeline.kubeflow.svc.cluster.local:8888
