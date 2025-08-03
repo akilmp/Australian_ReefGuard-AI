@@ -11,17 +11,18 @@
 7. [Repository Structure](#repository-structure)
 8. [Local Development Quick‑Start](#local-development-quick-start)
 9. [Example Commands](#example-commands)
-10. [Infrastructure‑as‑Code](#infrastructure-as-code)
-11. [Data & Feature Management](#data--feature-management)
-12. [Automated Training & Tuning](#automated-training--tuning)
-13. [Model Registry & Promotion Workflow](#model-registry--promotion-workflow)
-14. [CI/CD Pipelines](#cicd-pipelines)
-15. [Model Serving & Deployment Strategies](#model-serving--deployment-strategies)
-16. [Monitoring & Observability](#monitoring--observability)
-17. [Cost Optimisation](#cost-optimisation)
-18. [Troubleshooting & FAQ](#troubleshooting--faq)
-19. [Stretch Goals](#stretch-goals)
-20. [References](#references)
+10. [Pre-commit Hooks](#pre-commit-hooks)
+11. [Infrastructure‑as‑Code](#infrastructure-as-code)
+12. [Data & Feature Management](#data--feature-management)
+13. [Automated Training & Tuning](#automated-training--tuning)
+14. [Model Registry & Promotion Workflow](#model-registry--promotion-workflow)
+15. [CI/CD Pipelines](#cicd-pipelines)
+16. [Model Serving & Deployment Strategies](#model-serving--deployment-strategies)
+17. [Monitoring & Observability](#monitoring--observability)
+18. [Cost Optimisation](#cost-optimisation)
+19. [Troubleshooting & FAQ](#troubleshooting--faq)
+20. [Stretch Goals](#stretch-goals)
+21. [References](#references)
 
 ---
 
@@ -190,6 +191,16 @@ python models/trainer/train.py --sample-data
 
 # Serve the latest model locally
 python models/inference/app.py --model-path models/artifacts/latest
+```
+
+## Pre-commit Hooks
+
+This project uses [pre-commit](https://pre-commit.com/) to run linters and formatters (black, flake8, isort).
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
 ```
 
 ---
