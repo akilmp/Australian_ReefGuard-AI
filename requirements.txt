@@ -1,3 +1,6 @@
 evidently
 pandas
 requests
+torch
+torchvision
+xgboost
