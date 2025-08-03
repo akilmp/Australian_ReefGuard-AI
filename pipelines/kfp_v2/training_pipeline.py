@@ -13,6 +13,7 @@ except ImportError:  # pragma: no cover - optional dependency
     def _identity_decorator(*args, **kwargs):
         def _wrap(func):
             return func
+
         return _wrap
 
     dsl = type(
@@ -59,33 +60,73 @@ def training_pipeline():
             "objective": {
                 "type": "maximize",
                 "goal": 0.9,
-                "objectiveMetricName": "accuracy",
+                "objectiveMetricName": "ensemble_accuracy",
             },
             "algorithm": {"algorithmName": "bayesianoptimization"},
             "parameters": [
                 {
-                    "name": "learningRate",
+                    "name": "xgbLearningRate",
                     "parameterType": "double",
                     "feasibleSpace": {"min": "0.01", "max": "0.2"},
                 },
                 {
-                    "name": "maxDepth",
+                    "name": "xgbMaxDepth",
                     "parameterType": "int",
                     "feasibleSpace": {"min": "3", "max": "10"},
+                },
+                {
+                    "name": "xgbNEstimators",
+                    "parameterType": "int",
+                    "feasibleSpace": {"min": "50", "max": "200"},
+                },
+                {
+                    "name": "vitLr",
+                    "parameterType": "double",
+                    "feasibleSpace": {"min": "0.0001", "max": "0.01"},
+                },
+                {
+                    "name": "vitEpochs",
+                    "parameterType": "int",
+                    "feasibleSpace": {"min": "1", "max": "10"},
+                },
+                {
+                    "name": "vitBatchSize",
+                    "parameterType": "int",
+                    "feasibleSpace": {"min": "8", "max": "64"},
                 },
             ],
             "trialTemplate": {
                 "primaryContainerName": "training-container",
                 "trialParameters": [
                     {
-                        "name": "learningRate",
+                        "name": "xgbLearningRate",
                         "description": "Learning rate for XGBoost",
-                        "reference": "learningRate",
+                        "reference": "xgbLearningRate",
                     },
                     {
-                        "name": "maxDepth",
+                        "name": "xgbMaxDepth",
                         "description": "Max depth for XGBoost",
-                        "reference": "maxDepth",
+                        "reference": "xgbMaxDepth",
+                    },
+                    {
+                        "name": "xgbNEstimators",
+                        "description": "Number of trees for XGBoost",
+                        "reference": "xgbNEstimators",
+                    },
+                    {
+                        "name": "vitLr",
+                        "description": "Learning rate for Vision Transformer",
+                        "reference": "vitLr",
+                    },
+                    {
+                        "name": "vitEpochs",
+                        "description": "Training epochs for Vision Transformer",
+                        "reference": "vitEpochs",
+                    },
+                    {
+                        "name": "vitBatchSize",
+                        "description": "Batch size for Vision Transformer",
+                        "reference": "vitBatchSize",
                     },
                 ],
                 "trialSpec": {
@@ -103,12 +144,18 @@ def training_pipeline():
                                             "models/trainer/train.py",
                                         ],
                                         "args": [
-                                            "--model",
-                                            "xgboost",
-                                            "--learning-rate",
-                                            "${trialParameters.learningRate}",
-                                            "--max-depth",
-                                            "${trialParameters.maxDepth}",
+                                            "--xgb-learning-rate",
+                                            "${trialParameters.xgbLearningRate}",
+                                            "--xgb-max-depth",
+                                            "${trialParameters.xgbMaxDepth}",
+                                            "--xgb-n-estimators",
+                                            "${trialParameters.xgbNEstimators}",
+                                            "--vit-lr",
+                                            "${trialParameters.vitLr}",
+                                            "--vit-epochs",
+                                            "${trialParameters.vitEpochs}",
+                                            "--vit-batch-size",
+                                            "${trialParameters.vitBatchSize}",
                                         ],
                                     }
                                 ],
@@ -123,4 +170,3 @@ def training_pipeline():
 
     # Submit the Katib experiment within the pipeline
     katib_experiment(experiment_spec=json.dumps(experiment_spec))
-
