@@ -117,7 +117,7 @@ graph TD;
 | ----------------------------- | --------- | --------------- | -------------------- |
 | Sentinel‑2 L2A surface‑temp   | COG       | Daily tiles     | AWS Open Data Bucket |
 | MODIS Sea‑Surface Temperature | HDF       | Daily composite | NASA OPeNDAP         |
-| Queensland IMOS buoys         | JSON REST | Every 10 min    | Public API           |
+| Queensland IMOS buoys         | JSON REST | Every 10 min    | AIMS Weather API (API key) |
 
 ---
 
@@ -165,7 +165,7 @@ reefguard-ai/
 ```bash
 # Clone & prep
 conda create -n reefguard python=3.11 -y && conda activate reefguard
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 
 # Start MLflow & Feast locally
 mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns &
