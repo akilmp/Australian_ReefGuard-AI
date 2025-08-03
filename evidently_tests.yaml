@@ -1,0 +1,12 @@
+datasets:
+  reference:
+    path: data/reference.csv
+  current:
+    path: data/current.csv
+tests:
+  - DataDriftTest:
+      column_name: feature_a
+      threshold: 0.1
+  - DataDriftTest:
+      column_name: feature_b
+      threshold: 0.1
