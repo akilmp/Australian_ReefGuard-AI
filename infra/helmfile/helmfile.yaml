@@ -1,0 +1,36 @@
+repositories:
+  - name: feast
+    url: https://feast-helm-charts.storage.googleapis.com
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: jetstack
+    url: https://charts.jetstack.io
+
+releases:
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: v1.13.2
+    set:
+      - name: installCRDs
+        value: true
+
+  - name: kfserving
+    namespace: kfserving
+    chart: https://github.com/kserve/kserve/releases/download/v0.15.2/helm-chart-kserve-v0.15.2.tgz
+
+  - name: feast
+    namespace: feast
+    chart: feast/feast
+
+  - name: mlflow
+    namespace: mlflow
+    chart: bitnami/mlflow
+
+  - name: postgresql
+    namespace: mlflow
+    chart: bitnami/postgresql
+
+  - name: minio
+    namespace: mlflow
+    chart: bitnami/minio
