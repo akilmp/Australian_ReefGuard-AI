@@ -1,0 +1,9 @@
+dataset:
+  reference:
+    path: data/reference.csv
+    type: csv
+  current:
+    path: data/current.csv
+    type: csv
+tests:
+  - DataDriftTestPreset

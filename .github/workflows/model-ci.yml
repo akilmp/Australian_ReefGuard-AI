@@ -24,7 +24,7 @@ jobs:
       - name: Run pytest
         run: pytest
       - name: Run Evidently tests
-        run: evidently test run
+        run: evidently test run -c evidently_tests.yaml
   docker-build:
     runs-on: ubuntu-latest
     needs: test
