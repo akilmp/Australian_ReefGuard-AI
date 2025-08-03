@@ -177,8 +177,8 @@ mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./
 feast apply
 
 # Run a tiny sample pipeline
-python pipelines/kfp_v2/etl_pipeline.py --local-sample
-python models/trainer/train.py --sample-data
+python pipelines/kfp_v2/etl_pipeline.py
+python models/trainer/train.py
 ```
 
 ## Example Commands
@@ -191,10 +191,10 @@ pytest -q
 docker build -t reefguard/trainer models/trainer
 
 # Trigger a sample training run
-python models/trainer/train.py --sample-data
+python models/trainer/train.py
 
 # Serve the latest model locally
-python models/inference/predictor.py --model-path models/artifacts/latest
+python models/inference/predictor.py
 ```
 
 ---

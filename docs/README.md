@@ -52,14 +52,14 @@ graph TD;
    ```
 3. Ingest sample data and run a training job.
    ```bash
-   python pipelines/kfp_v2/etl_pipeline.py --local-sample
-   python models/trainer/train.py --sample-data
+   python pipelines/kfp_v2/etl_pipeline.py
+   python models/trainer/train.py
    ```
 4. Serve the latest model and query it.
    ```bash
-   python models/inference/predictor.py --model-path models/artifacts/latest &
+   python models/inference/predictor.py &
    curl -X POST -H "Content-Type: application/json" \
-     -d '{"features": {"sst": 28.4, "turbidity": 3.1}}' \
+     -d '{"instances": [{"sst_celsius": 28.4, "turbidity_ntu": 3.1}]}' \
      http://localhost:8000/predict
    ```
 
