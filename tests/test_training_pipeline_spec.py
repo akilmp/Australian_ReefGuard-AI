@@ -1,9 +1,27 @@
+import importlib
 import json
-
-from pipelines.kfp_v2 import training_pipeline
+import sys
+import types
 
 
 def test_katib_experiment_spec(monkeypatch):
+    kfp_stub = types.ModuleType("kfp")
+
+    def _identity_decorator(*args, **kwargs):
+        def _wrap(func):
+            return func
+
+        return _wrap
+
+    kfp_stub.dsl = types.SimpleNamespace(
+        pipeline=_identity_decorator,
+        container_component=_identity_decorator,
+        ContainerSpec=object,
+    )
+    monkeypatch.setitem(sys.modules, "kfp", kfp_stub)
+    module_name = "pipelines.kfp_v2.training_pipeline"
+    training_pipeline = importlib.import_module(module_name)
+
     captured = {}
 
     def fake_katib_experiment(experiment_spec: str):
@@ -29,4 +47,3 @@ def test_katib_experiment_spec(monkeypatch):
     }
     objective_metric_name = spec["spec"]["objective"]["objectiveMetricName"]
     assert objective_metric_name == "ensemble_accuracy"
-
