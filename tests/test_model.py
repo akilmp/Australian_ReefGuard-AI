@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:  # pragma: no cover - sanity check
     sys.path.insert(0, str(ROOT))
 
-from models.trainer.model import EnsembleModel, build_model
+from models.trainer.model import EnsembleModel, build_model  # noqa: E402
 
 
 def test_build_model_returns_ensemble():
@@ -27,7 +27,9 @@ def test_build_model_returns_ensemble():
 
 def test_ensemble_fit_predict_calls_underlying_models():
     class DummyViT(nn.Module):
-        def forward(self, x: torch.Tensor) -> torch.Tensor:  # pragma: no cover - trivial
+        def forward(
+            self, x: torch.Tensor
+        ) -> torch.Tensor:  # pragma: no cover - trivial
             batch = x.shape[0]
             return torch.ones((batch, 4))
 
@@ -48,3 +50,23 @@ def test_ensemble_fit_predict_calls_underlying_models():
     preds = ensemble.predict(images)
     xgb.predict.assert_called_once()
     assert preds.shape == (2,)
+
+
+def test_extract_features_falls_back_to_tolist(monkeypatch):
+    class DummyViT(nn.Module):
+        def forward(
+            self, x: torch.Tensor
+        ) -> torch.Tensor:  # pragma: no cover - trivial
+            batch = x.shape[0]
+            return torch.ones((batch, 4))
+
+    ensemble = EnsembleModel(vit=DummyViT(), xgb_model=MagicMock())
+    images = np.zeros((1, 3, 32, 32), dtype=np.float32)
+
+    def _raise(_: np.ndarray) -> torch.Tensor:
+        # pragma: no cover - used for testing
+        raise RuntimeError("fail")
+
+    monkeypatch.setattr(torch, "from_numpy", _raise)
+    features = ensemble._extract_features(images)
+    assert features.shape == (1, 4)
