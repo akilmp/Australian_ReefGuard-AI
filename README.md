@@ -160,7 +160,7 @@ python models/trainer/train.py --sample-data
 ## Infrastructure‑as‑Code
 
 * **Terraform root modules**: `core` (network, EKS, S3, IAM) and `mlops` (ECR, SageMaker, Prometheus, ALB Ingress).
-* **Helmfile** manages Kubernetes releases: MLflow, Feast, Evidently, KFServing CRDs.
+* **Helmfile** manages Kubernetes releases: MLflow, Feast, Evidently, KFServing CRDs. Helm values for MLflow live under `helm/mlflow/values.yaml`.
 * **lakeFS installation** via Helm with S3 backend.
 
 Example deploy:
@@ -197,10 +197,11 @@ helmfile -f ../helmfile/01_core.yaml apply
 ## Model Registry & Promotion Workflow
 
 1. PR merges feature or model code.
-2. GitHub Action `model-ci.yml` runs unit + integration tests, `evidently evaluate` comparing new model vs prod on hold‑out slice.
-3. If metrics pass, Action pushes Docker image and updates Helm chart `values.yaml` image tag.
-4. ArgoCD/Kustomize sync deploys **canary** InferenceService (10 % traffic).
-5. Istio telemetry & Prometheus **error‑budget** monitor; after 30 min with <1 % degradation, tag transitions to *“Production”* (100 % traffic).
+2. GitHub Action `model-ci.yml` runs unit + integration tests, `evidently evaluate` comparing new model vs prod on hold‑out slice, and executes the training script `models/trainer/train.py` which registers the model with MLflow.
+3. Workflow `model-approval.yml` verifies that any model moved to *Staging* or *Production* is listed in `models/approved_models.txt`.
+4. If metrics pass, Action pushes Docker image and updates Helm chart `values.yaml` image tag.
+5. ArgoCD/Kustomize sync deploys **canary** InferenceService (10 % traffic).
+6. Istio telemetry & Prometheus **error‑budget** monitor; after 30 min with <1 % degradation, tag transitions to *“Production”* (100 % traffic).
 
 ---
 
