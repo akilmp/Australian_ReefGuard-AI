@@ -1,0 +1,66 @@
+{
+  "components": {
+    "comp-katib-experiment": {
+      "executorLabel": "exec-katib-experiment",
+      "inputDefinitions": {
+        "parameters": {
+          "experiment_spec": {
+            "parameterType": "STRING"
+          }
+        }
+      }
+    }
+  },
+  "deploymentSpec": {
+    "executors": {
+      "exec-katib-experiment": {
+        "container": {
+          "command": [
+            "python",
+            "-m",
+            "kubeflow.katib.launcher",
+            "--experiment-name",
+            "reefguard-bayesian",
+            "--experiment-namespace",
+            "kubeflow",
+            "--experiment-spec",
+            "{{$.inputs.parameters['experiment_spec']}}"
+          ],
+          "image": "docker.io/kubeflowkatib/katib-launcher:latest"
+        }
+      }
+    }
+  },
+  "pipelineInfo": {
+    "description": "Training pipeline with Katib Bayesian HPO",
+    "name": "reefguard-training-pipeline"
+  },
+  "root": {
+    "dag": {
+      "tasks": {
+        "katib-experiment": {
+          "cachingOptions": {
+            "enableCache": true
+          },
+          "componentRef": {
+            "name": "comp-katib-experiment"
+          },
+          "inputs": {
+            "parameters": {
+              "experiment_spec": {
+                "runtimeValue": {
+                  "constant": "{\"apiVersion\": \"kubeflow.org/v1beta1\", \"kind\": \"Experiment\", \"metadata\": {\"name\": \"reefguard-bayesian\"}, \"spec\": {\"objective\": {\"type\": \"maximize\", \"goal\": 0.9, \"objectiveMetricName\": \"accuracy\"}, \"algorithm\": {\"algorithmName\": \"bayesianoptimization\"}, \"parameters\": [{\"name\": \"learningRate\", \"parameterType\": \"double\", \"feasibleSpace\": {\"min\": \"0.01\", \"max\": \"0.2\"}}, {\"name\": \"maxDepth\", \"parameterType\": \"int\", \"feasibleSpace\": {\"min\": \"3\", \"max\": \"10\"}}], \"trialTemplate\": {\"primaryContainerName\": \"training-container\", \"trialParameters\": [{\"name\": \"learningRate\", \"description\": \"Learning rate for XGBoost\", \"reference\": \"learningRate\"}, {\"name\": \"maxDepth\", \"description\": \"Max depth for XGBoost\", \"reference\": \"maxDepth\"}], \"trialSpec\": {\"apiVersion\": \"batch/v1\", \"kind\": \"Job\", \"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"training-container\", \"image\": \"python:3.10\", \"command\": [\"python\", \"models/trainer/train.py\"], \"args\": [\"--xgb-learning-rate\", \"${trialParameters.learningRate}\", \"--xgb-max-depth\", \"${trialParameters.maxDepth}\"]}], \"restartPolicy\": \"Never\"}}}}}}}"
+                }
+              }
+            }
+          },
+          "taskInfo": {
+            "name": "katib-experiment"
+          }
+        }
+      }
+    }
+  },
+  "schemaVersion": "2.1.0",
+  "sdkVersion": "kfp-2.13.0"
+}

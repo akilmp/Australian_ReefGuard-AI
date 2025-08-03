@@ -1,7 +1,5 @@
 """Kubeflow Pipelines v2 training pipeline invoking Katib Bayesian HPO."""
 
-from __future__ import annotations
-
 import json
 from typing import Dict
 
@@ -103,11 +101,9 @@ def training_pipeline():
                                             "models/trainer/train.py",
                                         ],
                                         "args": [
-                                            "--model",
-                                            "xgboost",
-                                            "--learning-rate",
+                                            "--xgb-learning-rate",
                                             "${trialParameters.learningRate}",
-                                            "--max-depth",
+                                            "--xgb-max-depth",
                                             "${trialParameters.maxDepth}",
                                         ],
                                     }
