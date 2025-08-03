@@ -2,8 +2,24 @@
   "title": "ReefGuard Observability",
   "panels": [
     {
+      "type": "heatmap",
+      "title": "Bleach Risk Heat Map",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "bleach_risk_score" }
+      ]
+    },
+    {
       "type": "graph",
-      "title": "PSI Drift",
+      "title": "Model Latency P95",
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(inference_request_duration_seconds_bucket[5m])) by (le))" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Data Drift PSI",
       "datasource": "Prometheus",
       "targets": [
         { "expr": "psi_drift_metric" }
