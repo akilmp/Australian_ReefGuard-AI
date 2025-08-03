@@ -24,7 +24,7 @@ This walkthrough demonstrates an end-to-end run of the ReefGuard AI pipeline on 
    ```
 5. **Serve the model** – launch a simple inference service.
    ```bash
-   python models/inference/app.py --model-path models/artifacts/latest &
+   python models/inference/predictor.py --model-path models/artifacts/latest &
    ```
 6. **Query the endpoint** – send a test request and review the prediction.
    ```bash
