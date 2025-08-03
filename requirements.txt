@@ -6,3 +6,5 @@ scikit-learn
 xgboost
 torch
 kserve
+kfp
+boto3
