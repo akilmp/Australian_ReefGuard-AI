@@ -1,0 +1,22 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: reefguard-predictor
+  annotations:
+    networking.kserve.io/target-stable-revision: reefguard-predictor-predictor-default
+    networking.kserve.io/target-canary-revision: reefguard-predictor-predictor-canary
+    networking.kserve.io/route: |
+      - destination:
+          host: reefguard-predictor-predictor-default.default.svc.cluster.local
+        weight: 90
+      - destination:
+          host: reefguard-predictor-predictor-canary.default.svc.cluster.local
+        weight: 10
+spec:
+  predictor:
+    containers:
+      - image: gcr.io/reefguard/predictor:v1
+  canary:
+    predictor:
+      containers:
+        - image: gcr.io/reefguard/predictor:v2
