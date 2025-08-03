@@ -15,8 +15,8 @@ metadata:
 spec:
   predictor:
     containers:
-      - image: gcr.io/reefguard/predictor:v1
+      - image: gcr.io/reefguard/reefguard-ai:v1
   canary:
     predictor:
       containers:
-        - image: gcr.io/reefguard/predictor:v2
+        - image: gcr.io/reefguard/reefguard-ai:v2
