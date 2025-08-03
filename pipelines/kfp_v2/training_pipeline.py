@@ -50,8 +50,16 @@ def katib_experiment(experiment_spec: str):
     name="reefguard-training-pipeline",
     description="Training pipeline with Katib Bayesian HPO",
 )
-def training_pipeline():
-    """Construct the pipeline that submits a Katib Bayesian optimization experiment."""
+def training_pipeline(image: str = "gcr.io/reefguard/trainer:latest"):
+    """Construct a Katib Bayesian optimization experiment.
+
+    Args:
+        image: Container image to use for the training job.
+    """
+    xgb_lr_param = "${trialParameters.xgbLearningRate}"
+    xgb_max_depth_param = "${trialParameters.xgbMaxDepth}"
+    xgb_n_estimators_param = "${trialParameters.xgbNEstimators}"
+
     experiment_spec: Dict = {
         "apiVersion": "kubeflow.org/v1beta1",
         "kind": "Experiment",
@@ -120,7 +128,12 @@ def training_pipeline():
                     },
                     {
                         "name": "vitEpochs",
-                        "description": "Training epochs for Vision Transformer",
+                        # fmt: off
+                        "description": (
+                            "Training epochs for Vision "
+                            "Transformer"
+                        ),
+                        # fmt: on
                         "reference": "vitEpochs",
                     },
                     {
@@ -138,18 +151,18 @@ def training_pipeline():
                                 "containers": [
                                     {
                                         "name": "training-container",
-                                        "image": "gcr.io/reefguard/trainer:latest",
+                                        "image": image,
                                         "command": [
                                             "python",
                                             "models/trainer/train.py",
                                         ],
                                         "args": [
                                             "--xgb-learning-rate",
-                                            "${trialParameters.xgbLearningRate}",
+                                            xgb_lr_param,
                                             "--xgb-max-depth",
-                                            "${trialParameters.xgbMaxDepth}",
+                                            xgb_max_depth_param,
                                             "--xgb-n-estimators",
-                                            "${trialParameters.xgbNEstimators}",
+                                            xgb_n_estimators_param,
                                             "--vit-lr",
                                             "${trialParameters.vitLr}",
                                             "--vit-epochs",

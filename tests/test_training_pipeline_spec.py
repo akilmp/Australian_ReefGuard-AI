@@ -22,10 +22,10 @@ def test_katib_experiment_spec(monkeypatch):
     module_name = "pipelines.kfp_v2.training_pipeline"
     training_pipeline = importlib.import_module(module_name)
 
-    captured = {}
+    captured_specs = []
 
     def fake_katib_experiment(experiment_spec: str):
-        captured["spec"] = experiment_spec
+        captured_specs.append(experiment_spec)
 
     monkeypatch.setattr(
         training_pipeline,
@@ -35,7 +35,7 @@ def test_katib_experiment_spec(monkeypatch):
 
     training_pipeline.training_pipeline()
 
-    spec = json.loads(captured["spec"])
+    spec = json.loads(captured_specs[-1])
     param_names = {p["name"] for p in spec["spec"]["parameters"]}
     assert param_names == {
         "xgbLearningRate",
@@ -47,3 +47,14 @@ def test_katib_experiment_spec(monkeypatch):
     }
     objective_metric_name = spec["spec"]["objective"]["objectiveMetricName"]
     assert objective_metric_name == "ensemble_accuracy"
+    trial_template = spec["spec"]["trialTemplate"]
+    default_spec = trial_template["trialSpec"]["spec"]["template"]["spec"]
+    container_image = default_spec["containers"][0]["image"]
+    assert container_image == "gcr.io/reefguard/trainer:latest"
+
+    training_pipeline.training_pipeline(image="custom/image:tag")
+    spec_custom = json.loads(captured_specs[-1])
+    custom_template = spec_custom["spec"]["trialTemplate"]
+    custom_spec = custom_template["trialSpec"]["spec"]["template"]["spec"]
+    custom_image = custom_spec["containers"][0]["image"]
+    assert custom_image == "custom/image:tag"
