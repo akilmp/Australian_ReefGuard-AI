@@ -57,7 +57,7 @@ graph TD;
    ```
 4. Serve the latest model and query it.
    ```bash
-   python models/inference/app.py --model-path models/artifacts/latest &
+   python models/inference/predictor.py --model-path models/artifacts/latest &
    curl -X POST -H "Content-Type: application/json" \
      -d '{"features": {"sst": 28.4, "turbidity": 3.1}}' \
      http://localhost:8000/predict

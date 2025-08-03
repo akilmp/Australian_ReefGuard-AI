@@ -189,7 +189,7 @@ docker build -t reefguard/trainer models/trainer
 python models/trainer/train.py --sample-data
 
 # Serve the latest model locally
-python models/inference/app.py --model-path models/artifacts/latest
+python models/inference/predictor.py --model-path models/artifacts/latest
 ```
 
 ---
