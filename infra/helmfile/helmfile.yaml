@@ -1,0 +1,10 @@
+repositories:
+  - name: lakefs
+    url: https://charts.lakefs.io
+
+releases:
+  - name: lakefs
+    namespace: lakefs
+    chart: lakefs/lakefs
+    values:
+      - values/lakefs-s3.yaml
