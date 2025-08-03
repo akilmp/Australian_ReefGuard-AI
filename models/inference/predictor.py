@@ -21,7 +21,7 @@ except Exception:  # pragma: no cover - Feast may not be installed
     FeatureStore = None
 
 
-class Predictor(kserve.KFModel):
+class Predictor(kserve.Model):
     """Model predictor for KFServing.
 
     During :meth:`load`, an MLflow model is loaded either from the supplied
@@ -58,7 +58,7 @@ class Predictor(kserve.KFModel):
 
         self.ready = True
 
-    def predict(self, request: Dict) -> Dict[str, List]:
+    def predict(self, request: Dict, headers: Dict[str, str] | None = None) -> Dict[str, List]:
         """Generate predictions from the request payload.
 
         Parameters
@@ -105,6 +105,17 @@ class Predictor(kserve.KFModel):
 
 
 if __name__ == "__main__":
-    model = Predictor("reefguard-model")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Start a KServe predictor")
+    parser.add_argument(
+        "--model-dir",
+        dest="model_dir",
+        default=None,
+        help="Path to a local MLflow model directory",
+    )
+    args = parser.parse_args()
+
+    model = Predictor("reefguard-model", model_dir=args.model_dir)
     model.load()
     kserve.ModelServer().start([model])

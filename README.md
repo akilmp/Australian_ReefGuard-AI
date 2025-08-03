@@ -189,7 +189,10 @@ docker build -t reefguard/trainer models/trainer
 python models/trainer/train.py --sample-data
 
 # Serve the latest model locally
-python models/inference/app.py --model-path models/artifacts/latest
+python models/inference/predictor.py --model-dir models/artifacts/latest &
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"instances": [{"sst": 28.4, "turbidity": 3.1}]}' \
+  http://localhost:8080/v1/models/reefguard-model:predict
 ```
 
 ---
