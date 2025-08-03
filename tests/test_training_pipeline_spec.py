@@ -14,5 +14,12 @@ def test_katib_experiment_spec(monkeypatch):
 
     spec = json.loads(captured['spec'])
     param_names = {p['name'] for p in spec['spec']['parameters']}
-    assert param_names == {'learningRate', 'maxDepth'}
-    assert spec['spec']['objective']['objectiveMetricName'] == 'accuracy'
+    assert param_names == {
+        'xgbLearningRate',
+        'xgbMaxDepth',
+        'xgbNEstimators',
+        'vitLr',
+        'vitEpochs',
+        'vitBatchSize',
+    }
+    assert spec['spec']['objective']['objectiveMetricName'] == 'ensemble_accuracy'
