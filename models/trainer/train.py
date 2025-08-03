@@ -42,3 +42,4 @@ if __name__ == "__main__":
     cli_args = parse_args()
     mlflow.set_experiment(cli_args.experiment)
     train(cli_args)
+
